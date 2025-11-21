@@ -195,7 +195,10 @@ pihole refreshdns
 
 # Error with DNS resolution/
 sudo vi /etc/resolv.conf
-# view where the nameserver is pointing and edit as needed.
+# view where the nameserver is pointing and edit as needed.I added the following
+#nameserver 10.96.0.10
+#nameserver 192.168.4.201
+#nameserver 8.8.8.8
 ```
 
 
