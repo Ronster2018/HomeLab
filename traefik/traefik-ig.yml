@@ -1,25 +1,33 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
-  name: pihole-ingress
+  name: pihole
   namespace: pi-hole
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  ingressClassName: traefik-internal-gw
-  rules:
-  - host: pi-hole.home.arpa
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: pihole-service
-            port:
-              number: 80
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`pihole.home.arpa`)
+    kind: Rule
+    services:
+    - name: pi-hole
+      port: 80
   tls:
-  - hosts:
-    - pi-hole.home.arpa # Must match the host above and in Pi-Hole DNS settings
-    secretName: home-arpa-tls
+    certResolver: default
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`traefik.home.arpa`)
+    kind: Rule
+    services:
+    - name: api@internal
+      kind: TraefikService
+  tls:
+    certResolver: default

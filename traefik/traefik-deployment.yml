@@ -25,6 +25,14 @@ spec:
         - --entrypoints.web.address=:80
         - --entrypoints.websecure.address=:443
         - --log.level=INFO
+
+        # Redirect HTTP → HTTPS
+        - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+        - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+        - "--certificatesresolvers.default.acme.tlschallenge=true"
+        - "--certificatesresolvers.default.acme.email=youremail@example.com"
+        - "--certificatesresolvers.default.acme.storage=/data/acme.json"
+
         ports:
         - name: web
           containerPort: 80
@@ -32,3 +40,10 @@ spec:
           containerPort: 443
         - name: admin
           containerPort: 8080
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: traefik-data
+        persistentVolumeClaim:
+          claimName: traefik-pvc
