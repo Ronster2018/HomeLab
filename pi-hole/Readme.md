@@ -202,8 +202,9 @@ sudo vi /etc/resolv.conf
 
 
 ## Next steps
-✔ Add Ingress + HTTPS (Traefik)
-✔ Add a separate admin UI LoadBalancer IP
-✔ Add health checks
-✔ Add automatic backup scripts (to NAS or Git)
-✔ Create a full README update
+- Add Ingress + HTTPS (Traefik)
+- Add a separate admin UI LoadBalancer IP
+- Add health checks
+- Add automatic backup scripts (to NAS or Git)
+- Create a full README update
+- External Secrets Provider
