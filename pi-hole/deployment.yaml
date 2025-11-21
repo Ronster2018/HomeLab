@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-hole
+  namespace: pi-hole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # Must match pod labels
+      app: pi-hole
+  template:
+    metadata:
+      labels:
+        app: pi-hole
+    spec:
+      containers:
+      - name: pi-hole
+        image: pihole/pihole:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 53
+          protocol: UDP
+        - containerPort: 53
+          protocol: TCP
+        - containerPort: 443
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: pi-hole-config
+        - secretRef:
+            name: pi-hole-secret
+
+        volumeMounts:
+        # Mount temportry storage for Pi-hole data
+        - name: pi-hole-data # Name must match volume name below
+          mountPath: /etc/pihole
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+
+      volumes:
+      - name: pi-hole-data
+        persistentVolumeClaim:
+          claimName: pihole-pvc # Must match PVC name

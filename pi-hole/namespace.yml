@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pi-hole
+  labels:
+    name: pi-hole
+    app: pi-hole
