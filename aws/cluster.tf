@@ -104,10 +104,10 @@ resource "aws_security_group" "k8s_sg" {
 # ------------------------------
 # Key Pair
 # ------------------------------
-resource "aws_key_pair" "k8s_key" {
-  key_name   = "k8s-key"
-  public_key = file("~/.ssh/k8s.pub")
-}
+# resource "aws_key_pair" "k8s_key" {
+#   key_name   = "aws_k8s_key_practice"
+#   public_key = file("~/.ssh/k8s.pub")
+# }
 
 # ------------------------------
 # EC2 Instances
@@ -117,7 +117,8 @@ resource "aws_instance" "control_plane" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.k8s_sg.id]
-  key_name               = aws_key_pair.k8s_key.key_name
+  key_name               = "aws_k8s_key_practice"
+  # depends_on             = [aws_key_pair.k8s_key]
 
   tags = {
     Name = "k8s-control-plane"
@@ -131,7 +132,8 @@ resource "aws_instance" "worker_nodes" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public_subnet.id
   vpc_security_group_ids = [aws_security_group.k8s_sg.id]
-  key_name               = aws_key_pair.k8s_key.key_name
+  key_name               = "aws_k8s_key_practice"
+  # depends_on             = [aws_key_pair.k8s_key]
 
   tags = {
     Name = "k8s-worker-${count.index + 1}"
