@@ -9,7 +9,7 @@ data:
   FTLCONF_dns_listeningMode: 'all'
   DNS: "1.1.1.1" # upstream DNS, change if desired
   DNS2: "1.0.0.1"
-  ServerIP: "192.168.4.250"
+  ServerIP: "192.168.4.201"
   # See https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
   # Required if you are using Pi-hole as your DHCP server, else not needed
   DNSMASQ_USER: "root"
