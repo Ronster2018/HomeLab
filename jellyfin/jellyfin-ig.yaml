@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin-ig
+  namespace: jellyfin
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`jellyfin.home.arpa`)
+    kind: Rule
+    services:
+    - name: jellyfin-svc
+      port: 8096
+  tls:
+    certResolver: default
