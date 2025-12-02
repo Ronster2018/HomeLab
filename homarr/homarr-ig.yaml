@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homarr-ig
+  namespace: homarr
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`homarr.home.arpa`)
+    kind: Rule
+    services:
+    - name: homarr-service
+      port: 7575
+  tls:
+    certResolver: default
