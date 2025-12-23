@@ -228,4 +228,11 @@ terraform.rc
 .history
 .ionide
 
+# Kubernetes
+*secrets.yaml
+*secret.yaml
+*secrets.yml
+*secret.yml
+
+
 # End of https://www.toptal.com/developers/gitignore/api/terraform,visualstudiocode,python
