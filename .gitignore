@@ -232,7 +232,8 @@ terraform.rc
 *secrets.yaml
 *secret.yaml
 *secrets.yml
-*secret.yml
+*secret*.yml
+ghcr-io.yml
 
 
 # End of https://www.toptal.com/developers/gitignore/api/terraform,visualstudiocode,python
