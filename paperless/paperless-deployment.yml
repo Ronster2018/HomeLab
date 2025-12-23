@@ -1,0 +1,67 @@
+# =========================================================
+# Paperless-NGX Deployment
+# =========================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+  namespace: paperless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless
+  template:
+    metadata:
+      labels:
+        app: paperless
+    spec:
+      containers:
+      - name: paperless
+        image: ghcr.io/paperless-ngx/paperless-ngx:latest
+        envFrom:
+        - configMapRef:
+            name: paperless-config
+        - secretRef:
+            name: paperless-secret
+        env:
+        - name: PAPERLESS_REDIS
+          value: "redis://:$(REDIS_PASS)@redis-service.redis.svc.cluster.local:6379"
+          
+        - name: REDIS_PASS # Name that will appear in Paperless config/environment
+          valueFrom:
+            secretKeyRef:
+              name: paperless-secret
+              key: REDIS_PASS
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: paperless-data
+          mountPath: /usr/src/paperless/data
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+      volumes:
+      - name: paperless-data
+        persistentVolumeClaim:
+          claimName: paperless-data-pvc
+---
+# =========================================================
+# Paperless ClusterIP Service
+# =========================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-service
+  namespace: paperless
+spec:
+  selector:
+    app: paperless
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000

@@ -1,0 +1,17 @@
+# =========================================================
+# ConfigMap
+# =========================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paperless-config
+  namespace: paperless
+data:
+  # PAPERLESS_REDIS: "redis://redis-service.redis.svc.cluster.local:6379"
+  PAPERLESS_DBENGINE: "postgresql+psycopg2"
+  PAPERLESS_DBHOST: "postgres-service.paperless.svc.cluster.local"
+  PAPERLESS_DBPORT: "5432"
+  PAPERLESS_DBNAME: "paperless"
+  PAPERLESS_TIME_ZONE: "America/New_York"
+  PAPERLESS_URL: "https://paperless.home.arpa"
+  PAPERLESS_OCR_LANGUAGE: "eng"

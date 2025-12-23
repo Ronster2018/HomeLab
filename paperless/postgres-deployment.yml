@@ -1,0 +1,68 @@
+---
+
+# =========================================================
+# PostgreSQL StatefulSet
+# =========================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: paperless
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: paperless-config
+              key: PAPERLESS_DBNAME
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: paperless-secret
+              key: PAPERLESS_DBUSER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: paperless-secret
+              key: PAPERLESS_DBPASS
+        - name: PGDATA
+          value: /var/lib/postgresql/data
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: paperless-db-pvc
+---
+# =========================================================
+# PostgreSQL ClusterIP Service
+# =========================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: paperless
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
