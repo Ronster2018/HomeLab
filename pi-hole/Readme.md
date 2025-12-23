@@ -59,7 +59,7 @@ Once the manifests are applied (Deployment, Service, PVC, ConfigMap, etc.):
 kubectl -n pi-hole get pods,svc,pvc
 ```
 
-Make sure the service type is **LoadBalancer** so MetalLB assigns an IP.
+There will be two services. One service of type `ClusterIP` that exposes ports `80` and `443` for web traffic, and the other for DNS lookup traffic via port `53`. This second service is of type `LoadBalancer`. This is given a static IP address on the local network for local DNS resolution.
 
 Point your router DNS settings to that LoadBalancer IP.
 
@@ -84,6 +84,7 @@ Using home.arpa avoids:
 - Broken local DNS lookups
 - Pi-hole gravity update failures
 
+> Note: This applications web traffic relies on a `Traefik` IngressRoute to be installed and configured. Whereas the DNS portion relies on `MetalLB` to be installed and configured.
 ---
 
 # Configure Pi-hole with `home.arpa`
@@ -121,25 +122,16 @@ Still in the Pi-hole UI:
 
 | Field      | Value                           |
 | ---------- | ------------------------------- |
-| Domain     | `pi-hole.home.arpa`             |
-| IP Address | `192.168.x.x` (Your Pi-hole IP) |
+| Domain     | `pihole.home.arpa`             |
+| IP Address | `192.168.x.x` (Your Traefik LoadBalancedIP) |
 
 Example:
 
 ```
-pi-hole.home.arpa -> 192.168.4.201
+pi-hole.home.arpa -> 192.168.4.202
 ```
 
 Click **Add**.
-
-### **Eero Router Settings**
-
-* **DHCP & NAT Mode** → **Manual**
-    - IP addr Prefix: `192.168.9.0/16`
-    - Subnet Mask:  `255.255.0.0`
-    - Start Range:` 192.168.4.1`
-    - End Range: `192.168.4.200`
-* **DNS Server** → Pi-hole LoadBalancer IP
 
 ### Verification
 
@@ -147,18 +139,19 @@ Click **Add**.
 
 Open a terminal:
 ```bash
-nslookup pi-hole.home.arpa
+nslookup pihole.home.arpa
 ```
 
 Expected:
 ```
-Address: 192.168.4.201
+Name:    pihole.home.arpa
+Address:  192.168.4.202
 ```
 
 #### **2. Access the Pi-hole UI**
 Navigate to:
 ```
-http://pi-hole.home.arpa/admin
+http://pihole.home.arpa/admin
 ```
 #### **3. Check Pi-hole Gravity Update**
 
@@ -195,7 +188,7 @@ pihole refreshdns
 
 # Error with DNS resolution/
 sudo vi /etc/resolv.conf
-# view where the nameserver is pointing and edit as needed.I added the following
+# view where the nameserver is pointing and edit as needed. I added the following
 #nameserver 10.96.0.10
 #nameserver 192.168.4.201
 #nameserver 8.8.8.8
@@ -205,9 +198,7 @@ sudo vi /etc/resolv.conf
 
 
 ## Next steps
-- Add Ingress + HTTPS (Traefik)
 - Add a separate admin UI LoadBalancer IP
 - Add health checks
 - Add automatic backup scripts (to NAS or Git)
-- Create a full README update
 - External Secrets Provider
