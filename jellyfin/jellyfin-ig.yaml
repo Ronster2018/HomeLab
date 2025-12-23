@@ -12,5 +12,4 @@ spec:
     services:
     - name: jellyfin-svc
       port: 8096
-  tls:
-    certResolver: default
+  tls: {}
