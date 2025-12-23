@@ -21,6 +21,7 @@ spec:
         image: traefik:v3.6
         args:
         - --api.insecure=true # Enable Traefik dashboard (optional)
+        - --api.dashboard=true
         - --providers.kubernetescrd # Use Kubernetes CRD for Ingress
         - --entrypoints.web.address=:80
         - --entrypoints.websecure.address=:443
@@ -33,6 +34,8 @@ spec:
         - "--certificatesresolvers.default.acme.email=youremail@example.com"
         - "--certificatesresolvers.default.acme.storage=/data/acme.json"
 
+        - --entrypoints.websecure.forwardedHeaders.trustedIPs=0.0.0.0/0
+
         ports:
         - name: web
           containerPort: 80
@@ -41,7 +44,7 @@ spec:
         - name: admin
           containerPort: 8080
         volumeMounts:
-        - name: data
+        - name: traefik-data
           mountPath: /data
       volumes:
       - name: traefik-data
