@@ -12,5 +12,4 @@ spec:
     services:
     - name: homarr-service
       port: 7575
-  tls:
-    certResolver: default
+  tls: {}
