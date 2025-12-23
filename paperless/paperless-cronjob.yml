@@ -1,0 +1,49 @@
+# # =========================================================
+# # Backup CronJob for Postgres
+# # =========================================================
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#   name: pg-backup
+#   namespace: paperless
+# spec:
+#   schedule: "0 2 * * *" # Daily at 2 AM
+#   jobTemplate:
+#     spec:
+#       template:
+#         spec:
+#           containers:
+#           - name: backup
+#             image: postgres:16-alpine
+#             env:
+#             - name: PGPASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: paperless-secret
+#                   key: PAPERLESS_DBPASS
+#             - name: PGUSER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: paperless-secret
+#                   key: PAPERLESS_DBUSER
+#             - name: PGDATABASE
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: paperless-config
+#                   key: PAPERLESS_DBNAME
+#             - name: PGHOST
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: paperless-config
+#                   key: PAPERLESS_DBHOST
+#             command: [ "/bin/sh", "-c" ]
+#             args:
+#             - pg_dump -U $PGUSER -h $PGHOST $PGDATABASE > /backups/backup_$(date +\%F).dump
+#             volumeMounts:
+#             - name: backup-storage
+#               mountPath: /backups
+#           restartPolicy: OnFailure
+#           volumes:
+#           - name: backup-storage
+#             persistentVolumeClaim:
+#               claimName: paperless-backup-pvc
