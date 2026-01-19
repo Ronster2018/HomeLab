@@ -5,6 +5,7 @@
 1. Generate our private keys and root certificate
 2. Generate Intermediate Certificate
 3. Give that certificate to our CA so it can generate and sign certificates (Step CA)
+4. Install Autostep, a Kubernetes add-on that automatically injects TLS/HTTPS certificates into your containers, so they can communicate with each other securely.
 
 ### 1. Generate PK & Root Certificate (OpenSSL)
 1. Update `/ca/root.conf` file and move it into
@@ -69,7 +70,7 @@ step-certificates-ca-password
       The password used to decrypt the X.509 intermediate certificate private key.
       type: smallstep.com/ca-password (manually added type)
 ```bash
-kubectl create secret generic step-certificates-ca-password --from-literal=password='Gab Canteen Gummy3' --namespace=step-ca --dry-run=client -o yaml > step-ca-cert-secret.yml
+kubectl create secret generic step-certificates-ca-password --from-literal=password='**********' --namespace=step-ca --dry-run=client -o yaml > step-ca-cert-secret.yml
 ```
 step-ca-step-certificates-config (Currently leaving this field in `step-ca-values` as `false`)
 - `ca.json`
@@ -104,6 +105,36 @@ helm upgrade --install step-certificates smallstep/step-certificates -f step-ca-
 
 > Note: Uninstall: `helm uninstall step-certificates -n step-ca`
 
+### 4.
+
+```bash
+helm install autocert smallstep/autocert
+kubectl label namespace default autocert.step.sm=enabled
+
+### After the install:
+
+Thanks for installing Autocert.
+
+1. Enable Autocert in your namespaces:
+   kubectl label namespace step-ca autocert.step.sm=enabled
+
+2. Check the namespaces where Autocert is enabled:
+   kubectl get namespace -L autocert.step.sm
+
+3. Get the PKI and Provisioner secrets running these commands:
+   kubectl get -n step-ca -o jsonpath='{.data.password}' secret/autocert-step-certificates-ca-password | base64 --decode
+   kubectl get -n step-ca -o jsonpath='{.data.password}' secret/autocert-step-certificates-provisioner-password | base64 --decode
+
+4. Get the CA URL and the root certificate fingerprint running this command:
+   kubectl -n step-ca logs job.batch/autocert
+
+CA URL: https://autocert-step-certificates.step-ca.svc.cluster.local
+CA Fingerprint: e3b13336eb57e20e3d22978104504af9d30ac9719d4798bbd19a3d6024629314
+
+5. Delete the configuration job running this command:
+   kubectl -n step-ca delete job.batch/autocert
+
+```
 # Why do we need Certs and a Certificate Authority??
 ## M.I.T.M Attacks
 - A man in the middle attack is where an attacker attempts to intercept a web request, examine or modify it, and send it off to where the web request was headed. This tricks both parties on either into thinking that they're talking directly to each other.

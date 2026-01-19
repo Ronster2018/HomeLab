@@ -235,5 +235,13 @@ terraform.rc
 *secret*.yml
 ghcr-io.yml
 
+*/step-ca/ca/*
+*/step-ca/step-certificates-secrets.yml
+*/step-ca/step-certificates-certs.yml
+*/step-ca/step-ca-cert-secret.yml
+*/step-ca/step-certificates-config.yaml
+*/step-ca/step-certificate-issuer-secret.yaml
+*.dockerconfig.json
+*ca.json
 
 # End of https://www.toptal.com/developers/gitignore/api/terraform,visualstudiocode,python
