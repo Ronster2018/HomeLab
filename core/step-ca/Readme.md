@@ -128,9 +128,6 @@ Thanks for installing Autocert.
 4. Get the CA URL and the root certificate fingerprint running this command:
    kubectl -n step-ca logs job.batch/autocert
 
-CA URL: https://autocert-step-certificates.step-ca.svc.cluster.local
-CA Fingerprint: e3b13336eb57e20e3d22978104504af9d30ac9719d4798bbd19a3d6024629314
-
 5. Delete the configuration job running this command:
    kubectl -n step-ca delete job.batch/autocert
 
