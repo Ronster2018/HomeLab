@@ -132,6 +132,27 @@ Thanks for installing Autocert.
    kubectl -n step-ca delete job.batch/autocert
 
 ```
+
+#### 1. Implementation
+1. Label namespaces
+```bash
+kubectl label namespace redis autocert.step.sm=enabled
+```
+2. Annotate pods
+
+```bash
+# .spec.template.metadata.annotations
+annotations:
+        autocert.step.sm/name: redis.apps.internal
+```
+
+3. Validate
+```bash
+kubectl -n redis -it exec pod/redis -- ls /var/run/autocert.step.sm
+# output: root.crt  site.crt  site.key
+```
+
+
 # Why do we need Certs and a Certificate Authority??
 ## M.I.T.M Attacks
 - A man in the middle attack is where an attacker attempts to intercept a web request, examine or modify it, and send it off to where the web request was headed. This tricks both parties on either into thinking that they're talking directly to each other.

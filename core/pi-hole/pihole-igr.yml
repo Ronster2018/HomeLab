@@ -7,7 +7,7 @@ spec:
   entryPoints:
   - websecure
   routes:
-  - match: Host(`pihole.home.arpa`)
+  - match: Host(`pi-hole.home.arpa`)
     kind: Rule
     services:
     - name: pi-hole # must match Service name

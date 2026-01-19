@@ -1,7 +1,7 @@
-# =========================================================
-# Namespace
-# =========================================================
 apiVersion: v1
 kind: Namespace
 metadata:
   name: paperless
+  labels:
+    name: paperless
+    app: paperless

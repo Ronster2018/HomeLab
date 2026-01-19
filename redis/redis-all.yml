@@ -3,6 +3,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: redis
+  labels:
+    name: redis
+    app: redis
 
 apiVersion: v1
 kind: PersistentVolume
@@ -44,6 +47,8 @@ spec:
     metadata:
       labels:
         app: redis
+      annotations:
+        autocert.step.sm/name: redis.apps.internal
     spec:
       containers:
         - name: redis
