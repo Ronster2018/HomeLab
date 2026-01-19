@@ -51,7 +51,7 @@ zfs-nfs democratic-csi/democratic-csi
 ```bash
 kubectl get pods -n democratic-csi -o wide
 
-curl -k -H "Authorization: Bearer 2-tjMO3St6bb1XVyDQKFhIv4ve0083FvwWirST7E3qCJgbcOPlXC2TPuqTGHRBVk29"   http://192.168.4.50/api/v2.0/system/version
+curl -k -H "Authorization: Bearer API_KEY_********************************"   http://192.168.4.50/api/v2.0/system/version
 
 ```
 
