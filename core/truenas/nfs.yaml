@@ -52,7 +52,7 @@ driver:
       # use only 1 of apiKey or username/password
       # if both are present, apiKey is preferred
       # apiKey is only available starting in TrueNAS-12
-      apiKey: *********************************
+      # apiKey: ***
       username: truenas_admin
       allowInsecure: true
       # use apiVersion 2 for TrueNAS-12 and up (will work on 11.x in some scenarios as well)
@@ -73,16 +73,16 @@ driver:
 
       # can be used to set arbitrary values on the dataset/zvol
       # can use handlebars templates with the parameters from the storage class/CO
-      #datasetProperties:
-      #  "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      datasetProperties:
+        "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
       #  "org.freenas:test": "{{ parameters.foo }}"
       #  "org.freenas:test2": "some value"
 
-      datasetParentName: TrueNAS/k8s/a/vols
+      datasetParentName: TrueNAS/k8s/vols
       # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
       # they may be siblings, but neither should be nested in the other
       # do NOT comment this option out even if you don't plan to use snapshots, just leave it with dummy value
-      detachedSnapshotsDatasetParentName: TrueNAS/k8s/a/snaps
+      detachedSnapshotsDatasetParentName: TrueNAS/k8s/snaps
       datasetEnableQuotas: true
       datasetEnableReservation: false
       datasetPermissionsMode: "0777"
@@ -94,15 +94,18 @@ driver:
       #- "-m u:kube:full_set:allow"
 
     nfs:
-      #shareCommentTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      datasetNameTemplate: "k8s-{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}-{{ parameters.[csi.storage.k8s.io/pvc/uid] }}"
+
+      shareCommentTemplate: "PVC {{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+
       shareHost: 192.168.4.50
       shareAlldirs: false
       shareAllowedHosts: []
       shareAllowedNetworks: []
-      shareMaprootUser: truenas_admin
-      shareMaprootGroup: truenas_admin
-      shareMapallUser: ""
-      shareMapallGroup: ""
+      shareMaprootUser: ""
+      shareMaprootGroup: ""
+      shareMapallUser: root
+      shareMapallGroup: wheel
 node:
   driver:
     image:

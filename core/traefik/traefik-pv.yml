@@ -13,7 +13,6 @@ spec:
   volumeMode: Filesystem
   persistentVolumeReclaimPolicy: Retain
   # TODO: Replace with TrueNAS storage once ready.
-  # This temporary path stores Pi-hole gravity.db and config.
   hostPath:
     path: /mnt/data/traefik
     type: DirectoryOrCreate
@@ -26,10 +25,7 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
+  storageClassName: truenas-iscsi-csi
   resources:
     requests:
-      storage: 1Gi
-  volumeMode: Filesystem
-  selector:
-    matchLabels:
-      app: traefik
+      storage: 2Gi

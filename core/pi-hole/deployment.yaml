@@ -47,4 +47,4 @@ spec:
       volumes:
       - name: pi-hole-data
         persistentVolumeClaim:
-          claimName: pihole-pvc # Must match PVC name
+          claimName: pi-hole-pvc

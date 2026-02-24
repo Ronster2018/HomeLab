@@ -4,7 +4,7 @@ csiDriver:
 
 # add note here about volume expansion requirements
 storageClasses:
-- name: freenas-iscsi-csi
+- name: truenas-iscsi-csi
   defaultClass: false
   reclaimPolicy: Retain
   volumeBindingMode: WaitForFirstConsumer
@@ -61,7 +61,7 @@ driver:
       # use only 1 of apiKey or username/password
       # if both are present, apiKey is preferred
       # apiKey is only available starting in TrueNAS-12
-      apiKey: *************************
+      # apiKey: ***
       username: truenas_admin
       # password:
       allowInsecure: true
@@ -83,8 +83,8 @@ driver:
 
       # can be used to set arbitrary values on the dataset/zvol
       # can use handlebars templates with the parameters from the storage class/CO
-      #datasetProperties:
-      #  "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      datasetProperties:
+        "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
       #  "org.freenas:test": "{{ parameters.foo }}"
       #  "org.freenas:test2": "some value"
 
@@ -93,11 +93,11 @@ driver:
       # standard volume naming overhead is 46 chars
       # datasetParentName should therefore be 17 chars or less when using TrueNAS 12 or below (SCALE and 13+ do not have the same limits)
       # for work-arounds see https://github.com/democratic-csi/democratic-csi/issues/54
-      datasetParentName: TrueNAS/k8s/b/vols
+      datasetParentName: TrueNAS/iscsi/vols
       # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
       # they may be siblings, but neither should be nested in the other
       # do NOT comment this option out even if you don't plan to use snapshots, just leave it with dummy value
-      detachedSnapshotsDatasetParentName: TrueNAS/k8s/b/snaps
+      detachedSnapshotsDatasetParentName: TrueNAS/iscsi/snaps
       # "" (inherit), lz4, gzip-9, etc
       zvolCompression: # "" (inherit), on, off, verify
 
@@ -115,9 +115,9 @@ driver:
       # MUST ensure uniqueness
       # full iqn limit is 223 bytes, plan accordingly
       # default is "{{ name }}"
-      #nameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+      nameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
       namePrefix: csi-
-      nameSuffix: "-clustera"
+      nameSuffix: "-cluster"
 
       # add as many as needed
       targetGroups:

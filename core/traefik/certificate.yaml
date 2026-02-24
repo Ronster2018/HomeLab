@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-ingressroute-certificate
+  namespace: traefik
+spec:
+  # Secret names are always required.
+  secretName: traefik-tls # Name of the secret to store the certificate. Match with traefik-ig.yml
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - traefik.home.sparhomelab.dev

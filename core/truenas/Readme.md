@@ -34,14 +34,14 @@ helm search repo democratic-csi/
 # add --create-namespace for helm v3
 helm upgrade \
 --install \
---values freenas-iscsi.yaml \
+--values iscsi.yaml \
 --namespace truenas \
 --create-namespace \
 zfs-iscsi democratic-csi/democratic-csi
 
 helm upgrade \
 --install \
---values freenas-nfs.yaml \
+--values nfs.yaml \
 --namespace truenas \
 --create-namespace \
 zfs-nfs democratic-csi/democratic-csi

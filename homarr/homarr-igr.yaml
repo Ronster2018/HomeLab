@@ -1,0 +1,77 @@
+# =========================================================
+# Homarr — Production Traefik Ingress + Redirect Middleware
+# ---------------------------------------------------------
+# What this does:
+#   • Forces HTTP → HTTPS
+#   • Serves Homarr securely on websecure
+#   • Keeps configuration clean and production-ready
+#
+# Apply with:
+#   kubectl apply -f homarr-ingress.yaml
+# =========================================================
+
+# =========================================================
+# Middleware: Redirect HTTP → HTTPS
+# ---------------------------------------------------------
+# This middleware upgrades all HTTP requests to HTTPS.
+# =========================================================
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: homarr-redirect-to-https
+  namespace: homarr
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+# =========================================================
+# IngressRoute (HTTP entrypoint)
+# ---------------------------------------------------------
+# Purpose:
+#   Catch plain HTTP and redirect to HTTPS
+# =========================================================
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homarr-ig-web
+  namespace: homarr
+spec:
+  entryPoints:
+  - web
+
+  routes:
+  - match: Host(`homarr.home.sparhomelab.dev`)
+    kind: Rule
+    middlewares:
+    - name: homarr-redirect-to-https
+    services:
+    # Dummy backend required by Traefik.
+    # Traffic will be redirected before reaching it.
+    - name: homarr-service
+      port: 7575
+---
+# =========================================================
+# IngressRoute (HTTPS entrypoint)
+# ---------------------------------------------------------
+# Purpose:
+#   Serve Homarr securely over TLS
+# =========================================================
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: homarr-ig-websecure
+  namespace: homarr
+spec:
+  entryPoints:
+  - websecure
+
+  routes:
+  - match: Host(`homarr.home.sparhomelab.dev`)
+    kind: Rule
+    services:
+    - name: homarr-service
+      port: 7575
+  # TLS certificate issued by cert-manager
+  tls:
+    secretName: homarr-tls

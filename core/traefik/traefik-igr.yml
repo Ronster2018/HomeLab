@@ -1,48 +1,50 @@
 # =========================================================
-# Pi-hole IngressRoute
+# Traefik Dashboard — Production Ingress + Middlewares
 # ---------------------------------------------------------
-# Features:
+# This manifest accomplishes:
 #   • HTTP → HTTPS redirect
-#   • Redirect root → /admin/
-#   • Secure TLS entry
-#   • Clean structure
+#   • Root "/" → "/dashboard/" redirect
+#   • Secure dashboard exposure via Traefik CRDs
+#
+# Apply with:
+#   kubectl apply -f traefik-dashboard.yaml
 # =========================================================
 
 # =========================================================
 # Middleware: Redirect HTTP → HTTPS
 # ---------------------------------------------------------
-# Attached to the HTTP entrypoint route
-# Forces all users onto HTTPS
+# Forces all HTTP requests onto HTTPS
+# Attached to the web (port 80) entrypoint
 # =========================================================
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: pihole-redirect-to-https
-  namespace: pi-hole
+  name: traefik-redirect-to-https
+  namespace: traefik
 spec:
   redirectScheme:
     scheme: https
     permanent: true
 ---
 # =========================================================
-# Middleware: Redirect "/" → "/admin/"
+# Middleware: Redirect root → /dashboard/
 # ---------------------------------------------------------
-# Pi-hole UI lives under /admin
-# This ensures users hitting the root are forwarded
+# Traefik dashboard is not served at "/"
+# This ensures users landing on the root are forwarded
 # =========================================================
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: pihole-admin-redirect
-  namespace: pi-hole
+  name: traefik-dashboard-redirect
+  namespace: traefik
 spec:
   redirectRegex:
-    regex: ^https?://pihole\.home\.sparhomelab\.dev/?$
-    replacement: https://pihole.home.sparhomelab.dev/admin/
+    regex: ^https?://traefik\.home\.sparhomelab\.dev/?$
+    replacement: https://traefik.home.sparhomelab.dev/dashboard/
     permanent: true
 ---
 # =========================================================
-# IngressRoute: HTTP entry (web)
+# IngressRoute: HTTP entrypoint (web)
 # ---------------------------------------------------------
 # Purpose:
 #   Catch HTTP traffic and force HTTPS
@@ -50,49 +52,49 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: pihole-web
-  namespace: pi-hole
+  name: traefik-dashboard-web
+  namespace: traefik
 spec:
   entryPoints:
   - web
+
   routes:
-  - match: Host(`pihole.home.sparhomelab.dev`)
+  - match: Host(`traefik.home.sparhomelab.dev`)
     kind: Rule
     middlewares:
-    - name: pihole-redirect-to-https
+    - name: traefik-redirect-to-https
     services:
-    # Dummy service required by Traefik routing model
-    # Traffic never actually reaches this service
-    - name: pi-hole
-      port: 80
+    # Dummy service required by Traefik
+    # Traffic never actually reaches backend
+    - name: api@internal
+      kind: TraefikService
 ---
 # =========================================================
-# IngressRoute: HTTPS entry (websecure)
+# IngressRoute: HTTPS entrypoint (websecure)
 # ---------------------------------------------------------
 # Purpose:
-#   • Serve Pi-hole UI securely
-#   • Redirect root → /admin/
+#   • Serve Traefik dashboard securely
+#   • Redirect root → /dashboard/
 # =========================================================
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: pihole-websecure
-  namespace: pi-hole
+  name: traefik-dashboard-websecure
+  namespace: traefik
 spec:
   entryPoints:
   - websecure
 
   routes:
-  - match: Host(`pihole.home.sparhomelab.dev`)
+  - match: Host(`traefik.home.sparhomelab.dev`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`) || PathPrefix(`/`))
     kind: Rule
     middlewares:
-    - name: pihole-admin-redirect
+    - name: traefik-dashboard-redirect
     services:
-    - name: pi-hole
-      port: 80
+    - name: api@internal
+      kind: TraefikService
   # -------------------------------------------------------
-  # TLS configuration
-  # Must match your cert-manager secret
+  # TLS certificate (must exist via cert-manager)
   # -------------------------------------------------------
   tls:
-    secretName: pi-hole-tls
+    secretName: traefik-tls

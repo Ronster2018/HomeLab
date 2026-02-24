@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jellyfin-ingressroute-certificate
+  namespace: jellyfin
+spec:
+  # Secret names are always required.
+  secretName: jellyfin-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - jellyfin.home.sparhomelab.dev
