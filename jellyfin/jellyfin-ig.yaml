@@ -7,9 +7,10 @@ spec:
   entryPoints:
   - websecure
   routes:
-  - match: Host(`jellyfin.home.arpa`)
+  - match: Host(`jellyfin.home.sparhomelab.dev`)
     kind: Rule
     services:
     - name: jellyfin-svc
       port: 8096
-  tls: {}
+  tls:
+    secretName: jellyfin-tls

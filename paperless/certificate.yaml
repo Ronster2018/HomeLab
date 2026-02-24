@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: paperless-ingressroute-certificate
+  namespace: paperless
+spec:
+  # Secret names are always required.
+  secretName: paperless-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - paperless.home.sparhomelab.dev

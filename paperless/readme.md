@@ -117,12 +117,3 @@ kubectl exec -it deploy/paperless -n paperless \
 5. **Scaling**
    - Consider Horizontal Pod Autoscaler for Paperless
    - Scale Postgres StatefulSet with read replicas (if needed)
-
----
-
-## Useful Tools for Managing Certificates
-
-- **cert-manager** → Automates cert issuance and renewal
-- **mkcert** → Local CA tool for development / home lab
-- **openssl** → Manual self-signed cert generation
-- **Traefik ACME / Let's Encrypt** → Automatic HTTPS for ingress routes

@@ -13,5 +13,5 @@ data:
   PAPERLESS_DBPORT: "5432"
   PAPERLESS_DBNAME: "paperless"
   PAPERLESS_TIME_ZONE: "America/New_York"
-  PAPERLESS_URL: "https://paperless.home.arpa"
+  PAPERLESS_URL: "https://paperless.home.sparhomelab.dev"
   PAPERLESS_OCR_LANGUAGE: "eng"

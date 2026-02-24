@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pi-hole-ingressroute-certificate
+  namespace: pi-hole
+spec:
+  # Secret names are always required.
+  secretName: pi-hole-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - pihole.home.sparhomelab.dev
