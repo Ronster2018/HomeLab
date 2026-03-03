@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr
+  namespace: jellyfin
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`jellyseerr.home.sparhomelab.dev`)
+    kind: Rule
+    services:
+    - name: jellyseerr
+      port: 80
+    middlewares:
+    - name: default-headers-jellyfin
+  tls:
+    secretName: jellyseerr-tls

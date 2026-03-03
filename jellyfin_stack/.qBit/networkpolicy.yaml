@@ -1,0 +1,114 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: qbittorrent-access
+  labels:
+    app: qbittorrent
+spec:
+  podSelector:
+    matchLabels:
+      app: qbittorrent
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Requests from services which use qBittorrent
+  - from:
+    - podSelector:
+        matchLabels:
+          app: radarr
+    - podSelector:
+        matchLabels:
+          app: sonarr
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  egress:
+  # Responses to services which use qBittorrent
+  - to:
+    - podSelector:
+        matchLabels:
+          app: radarr
+    - podSelector:
+        matchLabels:
+          app: sonarr
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  # VPN IPs from readme.md
+  # /32 CIDR covers one IP address, so we need to add multiple rules for each IP address
+  - to:
+    - ipBlock:
+        cidr: 158.173.25.166/32
+    - ipBlock:
+        cidr: 158.173.25.183/32
+    - ipBlock:
+        cidr: 158.173.25.131/32
+    - ipBlock:
+        cidr: 158.173.25.143/32
+    - ipBlock:
+        cidr: 158.173.25.172/32
+    - ipBlock:
+        cidr: 158.173.25.134/32
+
+  - to:
+    - ipBlock:
+        cidr: 151.240.205.73/32
+    - ipBlock:
+        cidr: 151.240.205.87/32
+    - ipBlock:
+        cidr: 151.240.205.56/32
+    - ipBlock:
+        cidr: 151.240.205.75/32
+    - ipBlock:
+        cidr: 151.240.205.51/32
+    - ipBlock:
+        cidr: 151.240.205.67/32
+    - ipBlock:
+        cidr: 151.240.205.62/32
+    - ipBlock:
+        cidr: 151.240.205.82/32
+    - ipBlock:
+        cidr: 151.240.205.19/32
+    - ipBlock:
+        cidr: 151.240.205.33/32
+
+  -to:
+  - ipBlock:
+      cidr: 191.96.227.149/32
+  - ipBlock:
+      cidr: 191.96.227.159/32
+  - ipBlock:
+      cidr: 191.96.227.148/32
+  - ipBlock:
+      cidr: 191.96.227.141/32
+  - ipBlock:
+      cidr: 191.96.227.155/32
+  - ipBlock:
+      cidr: 191.96.227.116/32
+  - ipBlock:
+      cidr: 191.96.227.12/32
+  - ipBlock:
+      cidr: 191.96.227.34/32
+  - ipBlock:
+      cidr: 191.96.150.148/32
+  - ipBlock:
+      cidr: 191.96.150.139/32
+  - ipBlock:
+      cidr: 37.19.198.66/32
+  - ipBlock:
+      cidr: 37.19.198.65/32
+  - ipBlock:
+      cidr: 37.19.198.60/32
+  - ipBlock:
+      cidr: 37.19.198.55/32
+  - ipBlock:
+      cidr: 158.173.25.25/32
+  - ipBlock:
+      cidr: 37.19.198.57/32
+  - ipBlock:
+      cidr: 37.19.198.51/32
+  - ipBlock:
+      cidr: 158.173.25.2/32

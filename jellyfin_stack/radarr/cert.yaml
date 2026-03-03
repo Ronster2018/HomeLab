@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: radarr
+  namespace: jellyfin
+spec:
+  # Secret names are always required.
+  secretName: radarr-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - radarr.home.sparhomelab.dev

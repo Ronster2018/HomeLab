@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyseerr
+  namespace: jellyfin
+  labels:
+    project: media-server
+    app: jellyseerr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: media-server
+      app: jellyseerr
+  template:
+    metadata:
+      labels:
+        project: media-server
+        app: jellyseerr
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: project
+                operator: In
+                values:
+                - media-server
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: jellyseerr
+        image: seerr/seerr:v3.1.0
+        ports:
+        - name: http
+          containerPort: 5055
+        volumeMounts:
+        - mountPath: /app/config
+          name: jellyseerr-config
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: 100m
+      volumes:
+      - name: jellyseerr-config
+        persistentVolumeClaim:
+          claimName: jellyseerr-config

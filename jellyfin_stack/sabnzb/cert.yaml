@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sabnzbd
+  namespace: jellyfin
+spec:
+  # Secret names are always required.
+  secretName: sabnzbd-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - sabnzbd.home.sparhomelab.dev

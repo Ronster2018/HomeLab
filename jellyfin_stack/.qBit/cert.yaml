@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: qbittorrent
+  namespace: jellyfin
+spec:
+  # Secret names are always required.
+  secretName: qbittorrent-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - qbittorrent.home.sparhomelab.dev
