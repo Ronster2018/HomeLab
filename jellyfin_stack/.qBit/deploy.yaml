@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: jellyfin
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+        project: media-server
+    spec:
+      containers:
+      - name: qbittorrent
+        image: linuxserver/qbittorrent
+        resources:
+          limits:
+            memory: "2Gi"
+          requests:
+            memory: "512Mi"
+        env:
+        - name: PUID
+          value: "1057"
+        - name: PGID
+          value: "1056"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: downloads
+          mountPath: /data/torrents
+        ports:
+        - containerPort: 8080
+
+      - name: gluetun
+        image: qmcgaw/gluetun:v3.41.1
+        env:
+        - name: VPN_SERVICE_PROVIDER
+          value: "private internet access"
+        - name: OPENVPN_USER
+          valueFrom:
+            secretKeyRef:
+              name: pia-vpn-secrets #TODO: Create secret for this
+              key: PROTONVPN_USER
+        - name: OPENVPN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pia-vpn-secrets #TODO: Create secret for this
+              key: PROTONVPN_PASSWORD
+        - name: SERVER_REGIONS
+          value: "US New York" # TODO: Change this to your desired country
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        volumeMounts:
+        - name: gluetun-config
+          mountPath: /gluetun
+
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: qbitt-config
+      - name: downloads
+        persistentVolumeClaim:
+          claimName: jellyfin-media-pvc
+      - name: gluetun-config
+        persistentVolumeClaim:
+          claimName: gluetun-config

@@ -1,0 +1,64 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-to-https
+  namespace: jellyfin
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: default-headers-jellyfin
+  namespace: jellyfin
+spec:
+  headers:
+    browserXssFilter: true
+    contentTypeNosniff: true
+    forceSTSHeader: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 15552000
+    customFrameOptionsValue: SAMEORIGIN
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin-redirect
+  namespace: jellyfin
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`jellyfin.home.sparhomelab.dev`)
+    kind: Rule
+    middlewares:
+    - name: redirect-to-https
+    services:
+    # dummy service required by Traefik but never used
+    - name: jellyfin-svc
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin-ig
+  namespace: jellyfin
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`jellyfin.home.sparhomelab.dev`)
+    kind: Rule
+    middlewares:
+    - name: default-headers-jellyfin
+    services:
+    - name: jellyfin-svc
+      port: 80
+  tls:
+    secretName: jellyfin-tls
+---

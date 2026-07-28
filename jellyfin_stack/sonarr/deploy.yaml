@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: jellyfin
+  labels:
+    app: sonarr
+    project: media-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: project
+                operator: In
+                values:
+                - media-server
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: sonarr
+        image: linuxserver/sonarr
+        env:
+        - name: PUID
+          value: "1057"
+        - name: PGID
+          value: "1056"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /data
+        ports:
+        - containerPort: 8989
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: sonarr-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: jellyfin-media-pvc

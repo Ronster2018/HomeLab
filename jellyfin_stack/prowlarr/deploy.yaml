@@ -1,0 +1,67 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: prowlarr
+  namespace: jellyfin
+  labels:
+    app: prowlarr
+    project: media-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prowlarr
+      project: media-server
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+        project: media-server
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: project
+                operator: In
+                values:
+                - media-server
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: prowlarr
+        image: linuxserver/prowlarr:2.3.0
+        ports:
+        - name: prowlarr
+          containerPort: 9696
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Europe/Paris"
+        - name: UMASK
+          value: "022"
+        volumeMounts:
+        - name: prowlarr
+          mountPath: /config
+        resources:
+          limits:
+            memory: 400Mi
+          requests:
+            memory: 350Mi
+        readinessProbe:
+          tcpSocket:
+            port: prowlarr
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: prowlarr
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: prowlarr
+        persistentVolumeClaim:
+          claimName: prowlarr-config

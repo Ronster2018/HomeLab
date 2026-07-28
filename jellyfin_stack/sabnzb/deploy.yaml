@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sabnzbd
+  namespace: jellyfin
+  labels:
+    app: sabnzbd
+    proect: media-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sabnzbd
+  template:
+    metadata:
+      labels:
+        app: sabnzbd
+        project: media-server
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: project
+                operator: In
+                values:
+                - media-server
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: sabnzbd
+        image: lscr.io/linuxserver/sabnzbd:latest # Use the LinuxServer.io image
+        ports:
+        - containerPort: 8080 # Web interface port
+        env:
+        - name: PUID
+          value: "1000" # Replace with your user ID
+        - name: PGID
+          value: "1000" # Replace with your group ID
+        - name: TZ
+          value: "America/New_York" # Replace with your timezone
+        - name: host_whitelist
+          value: "sabnzbd.home.sparhomelab.dev" # Replace with your domain for security
+        volumeMounts:
+        - name: sabnzbd-config
+          mountPath: /config # Mount path for configuration files
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: sabnzbd-config
+        persistentVolumeClaim:
+          claimName: sabnzbd-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: jellyfin-media-pvc

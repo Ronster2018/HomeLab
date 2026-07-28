@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sonarr
+  namespace: jellyfin
+spec:
+  # Secret names are always required.
+  secretName: sonarr-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - sonarr.home.sparhomelab.dev

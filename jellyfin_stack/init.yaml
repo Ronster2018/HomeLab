@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jellyfin
+  labels:
+    name: jellyfin
+    app: jellyfin
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: media-init
+spec:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: project
+            operator: In
+            values:
+            - media-server
+        topologyKey: "kubernetes.io/hostname"
+  restartPolicy: Never
+  containers:
+  - name: init
+    image: alpine
+    command: [ "/bin/sh", "-c" ]
+    args:
+    - |
+      mkdir -p /data/torrents/books/
+      mkdir -p /data/torrents/movies/
+      mkdir -p /data/torrents/music/
+      mkdir -p /data/torrents/tv/
+      mkdir -p /data/usenet/incomplete
+      mkdir -p /data/usenet/complete/books/
+      mkdir -p /data/usenet/complete/movies/
+      mkdir -p /data/usenet/complete/music/
+      mkdir -p /data/usenet/complete/tv/
+      mkdir -p /data/media/books
+      mkdir -p /data/media/movies
+      mkdir -p /data/media/music
+      mkdir -p /data/media/tv
+      sleep 300
+    volumeMounts:
+    - name: media
+      mountPath: /data
+  volumes:
+  - name: media
+    persistentVolumeClaim:
+      claimName: jellyfin-media-pvc

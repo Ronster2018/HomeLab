@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: jellyfin
+  labels:
+    app: radarr
+    project: media-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+        project: media-server
+    spec:
+      #      initContainers:
+      #      - name: set-perms
+      #        image: alpine
+      #        command: ['sh', '-c', 'chown -R 1057:1056 /movies']
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: project
+                operator: In
+                values:
+                - media-server
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: radarr
+        image: linuxserver/radarr
+        env:
+        - name: PUID
+          value: "1057"
+        - name: PGID
+          value: "1056"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /data
+        ports:
+        - containerPort: 7878
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: radarr-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: jellyfin-media-pvc
