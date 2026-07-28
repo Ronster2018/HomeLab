@@ -1,0 +1,31 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: whisparr-ingressroute-certificate
+  namespace: midnight
+  labels:
+    project: midnight-curator
+spec:
+  # Secret names are always required.
+  secretName: whisparr-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - whisparr.home.sparhomelab.dev
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: stash-ingressroute-certificate
+  namespace: midnight
+  labels:
+    project: midnight-curator
+spec:
+  # Secret names are always required.
+  secretName: stash-tls
+  issuerRef:
+    name: cloudflare-dns-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - stash.home.sparhomelab.dev

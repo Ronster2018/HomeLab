@@ -1,0 +1,56 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: midnight-middleware
+  namespace: midnight
+spec:
+  headers:
+    browserXssFilter: true
+    contentTypeNosniff: true
+    forceSTSHeader: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 15552000
+    customFrameOptionsValue: SAMEORIGIN
+    customRequestHeaders:
+      X-Forwarded-Proto: https
+---
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whisparr-ig
+  namespace: midnight
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`whisparr.home.sparhomelab.dev`)
+    kind: Rule
+    services:
+    - name: whisparr
+      port: 80
+    middlewares:
+    - name: midnight-middleware
+  tls:
+    secretName: whisparr-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: stash-ig
+  namespace: midnight
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`stash.home.sparhomelab.dev`)
+    kind: Rule
+    middlewares:
+    - name: midnight-middleware
+    services:
+    - name: stash
+      port: 80
+  tls:
+    secretName: stash-tls
+---

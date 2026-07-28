@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whisparr
+  namespace: midnight
+  labels:
+    app: whisparr
+    project: midnight-curator
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: whisparr
+  template:
+    metadata:
+      labels:
+        app: whisparr
+        project: midnight-curator
+    spec:
+      containers:
+      - name: whisparr
+        image: ghcr.io/hotio/whisparr:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: UMASK
+          value: "002"
+        - name: TZ
+          value: "America/New_York"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: media
+          mountPath: /data
+        ports:
+        - containerPort: 6969
+          name: whisparr
+          protocol: TCP
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: whisparr-config
+      - name: media
+        persistentVolumeClaim:
+          claimName: media
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stash
+  namespace: midnight
+  labels:
+    app: stash
+    project: midnight-curator
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: stash
+  template:
+    metadata:
+      labels:
+        app: stash
+
+    spec:
+      containers:
+      - name: stash
+        image: stashapp/stash:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: UMASK
+          value: "002"
+        - name: TZ
+          value: "America/New_York"
+        - name: STASH_CONFIG_DIR
+          value: /config/
+        - name: STASH_DATA_DIR
+          value: /data/
+        volumeMounts:
+        - name: config
+          mountPath: /root/.stash
+        - name: media
+          mountPath: /data
+        -name: stash-sql
+          mountPath: /data/stash/sql
+        ports:
+        - containerPort: 6969
+          name: stash
+          protocol: TCP
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: stash-config
+      - name: media
+        persistentVolumeClaim:
+          claimName: media
+      - name: stash-sql
+        persistentVolumeClaim:
+          claimName: stash-pv-claim
